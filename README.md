@@ -7,7 +7,9 @@
 
 ## 🚀 Overview
 
-This repository contains production-ready n8n workflows designed to automate various tasks including travel planning, content generation, data processing, and AI-powered operations.
+This is my personal collection of n8n workflows for automation and AI integration. These workflows are designed to automate various tasks including travel planning, content generation, data processing, and AI-powered operations.
+
+**Note**: This is a personal repository. You're welcome to use these workflows, but I'm not accepting external contributions at this time.
 
 ## 📦 Available Workflows
 
@@ -80,15 +82,9 @@ This workflow automates travel planning and itinerary generation.
 - Keep your n8n instance updated
 - Regularly audit workflow permissions
 
-## 🤝 Contributing
+## 📝 About This Repository
 
-Contributions are welcome! Here's how you can help:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-workflow`)
-3. Commit your changes (`git commit -m 'Add amazing workflow'`)
-4. Push to the branch (`git push origin feature/amazing-workflow`)
-5. Open a Pull Request
+This is a personal collection of n8n workflows. Feel free to use and adapt these workflows for your own projects, but please note that this repository is maintained solely by the owner.
 
 ## 📄 License
 
@@ -100,17 +96,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [OpenAI](https://openai.com) - AI capabilities
 - Community contributors
 
-## 📞 Support
+## 📞 Questions or Issues?
 
-- **Issues**: [GitHub Issues](https://github.com/sataiexpress-source/sataiexpress/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/sataiexpress-source/sataiexpress/discussions)
+If you find issues with these workflows or have questions about how they work, feel free to open an issue. However, please note this is a personal project and response times may vary.
 
-## 🗺️ Roadmap
+## 🗺️ Future Plans
 
 - [ ] Add more AI-powered workflows
 - [ ] Create detailed workflow documentation
 - [ ] Add workflow templates library
-- [ ] Build community contributions
+- [ ] Expand automation capabilities
 
 ---
 
