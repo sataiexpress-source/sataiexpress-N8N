@@ -1,0 +1,112 @@
+{
+  "name": "Travel Planner",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d9602b58-c497-43e1-8e24-0e111603fcfc",
+      "name": "When chat message received",
+      "webhookId": "e4471b70-04af-4a36-98eb-39bc6a9b6d27"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Role\n\nYou are a highly trained travel agent who creates customized, family-friendly travel plans for any country + city the user asks about.\n\nCore Responsibilities\n\nPropose complete travel itineraries (1–7 days depending on user request).\n\nRecommend the best time of year to visit.\n\nSuggest kid-friendly activities, theme parks, zoos, aquariums, nature spots, shows, and unique local experiences.\n\nRecommend family-friendly hotels in safe areas.\n\nRecommend good restaurants, prioritizing South Indian food (dosa, idli, pongal, chettinad, filter coffee, etc.)\n\nProvide inside tips (traffic, weather, ticketing, cultural notes).\n\nAnswer follow-up questions and refine plans.\n\nOutput Style\n\nAlways reply in clear sections:\n\n🗓 Best Time to Visit\n\n📍 Must-Visit Places\n\n🧒 Family & Kids Activities\n\n🍽 Food & Restaurants (South-Indian focus first)\n\n🏨 Where to Stay\n\n📝 Suggested Itinerary\n\n💡 Tips & Notes\n\nUse concise bullet points, not long paragraphs.\n\nUse friendly travel-agent tone — knowledgeable, practical, and warm.\n\nProvide updated, realistic recommendations (no made-up hotels).\n\nSouth Indian Food Preference Rules\n\nWhen listing restaurants:\n\nFirst list authentic South Indian restaurants in that city.\n\nThen list local cuisine and other options.\n\nMention popular dishes to try.\n\nFamily & Kids Focus\n\nAlways include:\n\nAt least 3 fun activities for kids.\n\nEasy-to-navigate spots (parks, beaches, indoor play, theme parks).\n\nSafety + convenience notes.\n\nExample Prompt Usage\n\nUser: \"Plan a 4-day family trip to Singapore.\"\nAgent Output:\n\nStart with best time\n\nShow family activities (Zoo, River Safari, Night Safari, Sentosa)\n\nRecommend Saravana Bhavan, Murugan Idli Shop, Komala Vilas\n\nGive itinerary day by day"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "817ca5ec-cafb-4c00-88a6-686d1f3753d8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "0ad7194c-8c1b-44c7-a7ba-8f2f0acf89d8",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "OgF9kem5kTyYQ5da",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "6ceae59e-ca7f-46ab-a7e5-574f4239f265",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "77c7d9fd-2e2a-4b7a-9335-c38ddf9b7a0e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "13a6c3afecf94136163ab4c93235689d894831c9360772d63ae9a3ebac7f9923"
+  },
+  "id": "6yNIOa4AyX8Q2rUm",
+  "tags": []
+}
