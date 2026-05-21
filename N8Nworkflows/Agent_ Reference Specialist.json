@@ -1,0 +1,169 @@
+{
+  "name": "Agent: Reference Specialist",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        -80
+      ],
+      "id": "1f4ec27f-5e99-495b-a98e-241cef8963a0",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "You are the References Specialist. You have access to the user's reference library — books, academic papers, articles, and other long-form authoritative material — via the Search References tool.\n\nCRITICAL: You MUST call the Search References tool for every query. Never answer from your own knowledge. Never invent citations or quote material that isn't in the retrieved chunks.\n\nYour job:\n1. Identify the specific concept, claim, or topic the user is asking about.\n2. Call Search References with a focused keyword-rich search phrase derived from the user's query.\n3. If the question is complex, call the tool more than once with complementary phrasings to gather a fuller picture.\n4. Read the returned chunks carefully. Distinguish between a source's main argument and supporting detail.\n5. Return a concise, well-organized answer grounded ONLY in the retrieved chunks.\n6. Quote 1-3 short verbatim passages that directly support your answer.\n7. Cite every claim with the source's title and any other available metadata (author, section, date) from the chunk's metadata field.\n8. If multiple references disagree, present both views and attribute each.\n9. If references don't cover the question, respond exactly: \"No relevant references found.\" Do not speculate or fill gaps with general knowledge.\n\nStyle: precise, neutral, scholarly. No padding. No \"based on my search...\" preambles."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "86197b7d-38ec-4e1b-8ad2-d3d774d1acd2",
+      "name": "AI Agent",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        144
+      ],
+      "id": "49c7b180-aaa0-4063-b8aa-439fcfdb1e15",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "OgF9kem5kTyYQ5da",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search books, academic papers, and authoritative reference material. Use this tool for established knowledge, theoretical concepts, technical explanations, definitions, or formal source material. The tool requires one parameter named \"input\" containing a focused keyword-rich search phrase derived from the user's question.",
+        "tableName": {
+          "__rl": true,
+          "value": "references_kb",
+          "mode": "list",
+          "cachedResultName": "references_kb"
+        },
+        "topK": 5,
+        "options": {
+          "queryName": "match_references_kb"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        80
+      ],
+      "id": "7c2225e4-1a98-4169-bc07-a44c2925b3dd",
+      "name": "search_references",
+      "credentials": {
+        "supabaseApi": {
+          "id": "M9VkK6o0AuSOrEzh",
+          "name": "RAG-Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        320,
+        288
+      ],
+      "id": "3abc5f0a-dfed-4892-ae09-586b5c043e9c",
+      "name": "ReferenceEmbeddingModel",
+      "credentials": {
+        "ollamaApi": {
+          "id": "OgF9kem5kTyYQ5da",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search_references": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReferenceEmbeddingModel": {
+      "ai_embedding": [
+        [
+          {
+            "node": "search_references",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "027c43d2-90a9-49c7-b832-3e2a31cc7e04",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "13a6c3afecf94136163ab4c93235689d894831c9360772d63ae9a3ebac7f9923"
+  },
+  "id": "GcAPbmNFlBDV6emX",
+  "tags": []
+}

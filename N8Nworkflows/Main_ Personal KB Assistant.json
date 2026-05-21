@@ -1,0 +1,541 @@
+{
+  "name": "Main: Personal KB Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -272,
+        -64
+      ],
+      "id": "9065a1cc-f110-4f99-82d6-cc9ed1188789",
+      "name": "When chat message received",
+      "webhookId": "96eeff0b-1339-41ce-8324-1e1ff2aba498"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a routing classifier. The user will ask a question. You will output exactly one word or comma-separated words from this list, and NOTHING else:\n\n   notes\n   bookmarks\n   references\n\n   Examples:\n   - User asks about personal thoughts → output: notes\n   - User asks about a saved article → output: bookmarks\n   - User asks about a technical concept → output: references\n   - User asks a broad question → output: notes,bookmarks,references\n\n   Output ONLY the word(s). No punctuation. No JSON. No explanation.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -64,
+        -64
+      ],
+      "id": "0a22953c-3da6-4d7e-9d26-701246e6ce49",
+      "name": "RouterAgent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n       \"type\": \"object\",\n       \"properties\": {\n         \"route_to\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}},\n         \"reasoning\": {\"type\": \"string\"}\n       }\n     }",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        496
+      ],
+      "id": "42f894c1-4e92-4308-aa8a-bc1c96906857",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        144
+      ],
+      "id": "be246c57-50ad-4766-abed-d804cbb028ed",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "OgF9kem5kTyYQ5da",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        208
+      ],
+      "id": "b4bd417d-43be-43cb-b6e3-3583216c8d07",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route_to }}",
+                    "rightValue": "notes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "40b57a6a-3db1-4ce8-8faa-bd4998d1c4f5"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "892e673d-6f9f-4869-b057-57cb9a72699b",
+                    "leftValue": "={{ $json.route_to }}",
+                    "rightValue": "bookmarks",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "433df41e-7773-498d-919b-6f04a0036d8f",
+                    "leftValue": "={{ $json.route_to }}",
+                    "rightValue": "references",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "allMatchingOutputs": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        400,
+        -80
+      ],
+      "id": "894586ed-6cd6-4e78-9d65-b2b43eff8344",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "DvT9ROInDKS9clao",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/DvT9ROInDKS9clao",
+          "cachedResultName": "Agent: Notes Specialist"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('When chat message received').item.json.chatInput }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        640,
+        -240
+      ],
+      "id": "75023166-0591-40a0-8176-066765d611b3",
+      "name": "Call 'Agent: Notes Specialist'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GcAPbmNFlBDV6emX",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GcAPbmNFlBDV6emX",
+          "cachedResultName": "Agent: Reference Specialist"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('When chat message received').item.json.chatInput }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        -80
+      ],
+      "id": "eb41e8df-3779-425b-a792-c25e1b628b5b",
+      "name": "Call 'Agent: Reference Specialist'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "3U34OkAqv5QMB0uj",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/3U34OkAqv5QMB0uj",
+          "cachedResultName": "Agent: Bookmark Specialist"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('When chat message received').item.json.chatInput }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        112
+      ],
+      "id": "cd8238a8-b055-4fac-ba9c-566e223553cf",
+      "name": "Call 'Agent: Bookmark Specialist'"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1024,
+        -144
+      ],
+      "id": "0b454a6c-9fe8-4e59-b18d-12a1d1ca4117",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        48
+      ],
+      "id": "7d4dd825-2063-4949-9618-f0cc68189933",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "OgF9kem5kTyYQ5da",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=USER'S ORIGINAL QUESTION:\n{{ $('When chat message received').item.json.chatInput }}\n\nSPECIALIST ANSWERS TO SYNTHESIZE:\n{{ $json.toJsonString() }}\n\nSynthesize a single answer to the user's question using only the information above.",
+        "options": {
+          "systemMessage": "You are the Synthesis Agent. You receive (1) the user's original question and (2) answers from one or more specialist agents (Notes, Bookmarks, References) who searched different knowledge bases.\n\nYour job:\n- Combine the relevant specialist answers into a single coherent reply.\n- Use ONLY information present in the specialist outputs. Never invent or use general knowledge.\n- Preserve all source citations (titles, dates, URLs) that specialists provided.\n- If specialists disagree, note both views and attribute each.\n- If all specialists returned \"No relevant X found\", respond: \"I don't have information about this in your knowledge bases.\"\n- Be direct and concise. No \"Based on the specialist outputs...\" preambles."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1264,
+        -160
+      ],
+      "id": "f447d75c-1a7f-4efe-bf7e-d9ba27c57fdb",
+      "name": "Synthesis Agent"
+    },
+    {
+      "parameters": {
+        "model": "gemma3:4b",
+        "options": {
+          "format": "json"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        48,
+        608
+      ],
+      "id": "40f506d1-b38c-4ef5-ae8c-b592a7633985",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "OgF9kem5kTyYQ5da",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = ($input.first().json.output || '').toLowerCase();\nconst kbs = ['notes', 'bookmarks', 'references'];\nconst found = kbs.filter(kb => raw.includes(kb));\nconst route_to = found.length > 0 ? found.join(',') : 'notes,bookmarks,references';\nreturn [{ json: { route_to } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        160
+      ],
+      "id": "f8ef858c-ea1c-4e69-936a-69ff072e45aa",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "RouterAgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        []
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RouterAgent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        []
+      ]
+    },
+    "RouterAgent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Call 'Agent: Notes Specialist'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Agent: Reference Specialist'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Agent: Bookmark Specialist'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Agent: Reference Specialist'": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Call 'Agent: Bookmark Specialist'": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Agent: Notes Specialist'": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Synthesis Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Synthesis Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4cc96056-fc5c-41b7-8c04-4f481876ca5b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "13a6c3afecf94136163ab4c93235689d894831c9360772d63ae9a3ebac7f9923"
+  },
+  "id": "SAxUqOzXUFeUTd0f",
+  "tags": []
+}

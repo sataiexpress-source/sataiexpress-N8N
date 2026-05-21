@@ -1,0 +1,164 @@
+{
+  "name": "Agent: Bookmark Specialist",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        -80
+      ],
+      "id": "e732b61d-69c0-4f0b-8e12-04ee70746628",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "You are the References Specialist. You have access to the user's reference library — books, academic papers, articles, and other long-form authoritative material — via the Search References tool.\n\nCRITICAL: You MUST call the Search References tool for every query. Never answer from your own knowledge. Never invent citations or quote material that isn't in the retrieved chunks.\n\nYour job:\n1. Identify the specific concept, claim, or topic the user is asking about.\n2. Call Search References with a focused keyword-rich search phrase derived from the user's query.\n3. If the question is complex, call the tool more than once with complementary phrasings to gather a fuller picture.\n4. Read the returned chunks carefully. Distinguish between a source's main argument and supporting detail.\n5. Return a concise, well-organized answer grounded ONLY in the retrieved chunks.\n6. Quote 1-3 short verbatim passages that directly support your answer.\n7. Cite every claim with the source's title and any other available metadata (author, section, date) from the chunk's metadata field.\n8. If multiple references disagree, present both views and attribute each.\n9. If references don't cover the question, respond exactly: \"No relevant references found.\" Do not speculate or fill gaps with general knowledge.\n\nStyle: precise, neutral, scholarly. No padding. No \"based on my search...\" preambles.",
+          "enableStreaming": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "6f209930-2533-439c-8e1e-941b2cd7c4df",
+      "name": "AI Agent",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        144
+      ],
+      "id": "39565604-09df-495d-9dc3-f2c0be01a459",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "OgF9kem5kTyYQ5da",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search articles, blog posts, and saved web content. Use for current events, opinion pieces, or web-style content. The tool requires one parameter named \"input\" containing a focused search phrase.",
+        "tableName": {
+          "__rl": true,
+          "value": "bookmarks_kb",
+          "mode": "list",
+          "cachedResultName": "bookmarks_kb"
+        },
+        "topK": 5,
+        "options": {
+          "queryName": "match_bookmarks_kb"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        112
+      ],
+      "id": "4785ba92-b629-4310-91f6-9ac5af97a402",
+      "name": "search_bookmarks",
+      "credentials": {
+        "supabaseApi": {
+          "id": "M9VkK6o0AuSOrEzh",
+          "name": "RAG-Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        272,
+        288
+      ],
+      "id": "b85e19e5-5724-480e-b2f3-61367d44c2a9",
+      "name": "bookmarkembedmodel",
+      "credentials": {
+        "ollamaApi": {
+          "id": "OgF9kem5kTyYQ5da",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search_bookmarks": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "bookmarkembedmodel": {
+      "ai_embedding": [
+        [
+          {
+            "node": "search_bookmarks",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9577cf91-6f67-4214-8390-a5531b1a04ed",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "13a6c3afecf94136163ab4c93235689d894831c9360772d63ae9a3ebac7f9923"
+  },
+  "id": "3U34OkAqv5QMB0uj",
+  "tags": []
+}
